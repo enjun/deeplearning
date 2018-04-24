@@ -14,7 +14,7 @@ ops.reset_default_graph()
 def conv_layer(input, channels_in, channels_out, name='conv_layer'):
     with tf.name_scope(name):
         W = tf.Variable(tf.truncated_normal(shape=[4, 4, channels_in, channels_out], stddev=0.1, dtype=tf.float32), name='conv_w')
-        b = tf.Variable(tf.constant(0.2, shape=[channels_out], dtype=tf.float32), name='conv_b')
+        b = tf.Variable(tf.constant(0.1, shape=[channels_out], dtype=tf.float32), name='conv_b')
         out = tf.nn.conv2d(input, W, [1, 1, 1, 1], padding='SAME', name='conv_out')
         tf.summary.histogram('W', W)
         tf.summary.histogram('b', b)
@@ -24,7 +24,7 @@ def conv_layer(input, channels_in, channels_out, name='conv_layer'):
 def fc_layer(input, channels_in, channels_out, name='fc_layer'):
     with tf.name_scope(name):
         W = tf.Variable(tf.truncated_normal([channels_in, channels_out], dtype=tf.float32), name='fc_w')
-        b = tf.Variable(tf.zeros([channels_out], dtype=tf.float32), name='fc_b')
+        b = tf.Variable(tf.constant(0.1, shape=[channels_out], dtype=tf.float32), name='fc_b')
         tf.summary.histogram('W', W)
         tf.summary.histogram('b', b)
         out = tf.add(tf.matmul(input, W), b)
@@ -44,7 +44,7 @@ def main(args):
 
 
         # setting some parameters
-        epochs = 400
+        epochs = 200
         batch_size = 100
 
         mnist = read_data_sets('temp')
@@ -76,7 +76,7 @@ def main(args):
             loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(logits=fc2, labels=y_data), name='loss')
             tf.summary.scalar('loss', loss)
         with tf.name_scope('optimizer'):
-            optimizer = tf.train.MomentumOptimizer(learning_rate=0.0001, momentum=0.9).minimize(loss, name='optimizer')
+            optimizer = tf.train.AdagradOptimizer(learning_rate=0.0005).minimize(loss, name='optimizer')
         with tf.name_scope('accuracy'):
             equals = tf.equal(tf.argmax(fc2, axis=1), tf.cast(y_data, tf.int64))
             accuracy = tf.reduce_mean(tf.cast(equals, tf.float32), name='accuracy')
