@@ -5,7 +5,7 @@ import os
 import re
 
 
-def read_cifar(file):
+def read_cifar(dir):
     files_train = []
     for i in os.listdir(dir):
         if re.match(r'data.*', i):
@@ -36,8 +36,23 @@ def read_cifar(file):
 
 
 def to_image(data, num):
-    images_x = np.array([[[a[i], a[i + 1024], a[i + 2048]] for i in range(1024)] for a in data[:num]])
-    images_x = np.reshape(images_x, [-1, 32, 32, 3])
+    quotient = num // 1000
+    remainder= num % 1000
+    for i in range(quotient):
+        temp_x = np.array([[[a[i], a[i + 1024], a[i + 2048]] for i in range(1024)] for a in data[i*1000:(i+1)*1000]])
+        temp_x = np.reshape(temp_x, [-1, 32, 32, 3])
+        if i == 0:
+            images_x = temp_x
+        else:
+            images_x = np.concatenate([images_x, temp_x], axis=0)
+    if remainder != 0:
+        temp_x = np.array([[[a[i], a[i + 1024], a[i + 2048]] for i in range(1024)] for a in
+                           data[quotient * 1000:quotient * 1000 + remainder]])
+        temp_x = np.reshape(temp_x, [-1, 32, 32, 3])
+        if quotient != 0:
+            images_x = np.concatenate([images_x, temp_x], axis=0)
+        else:
+            images_x = temp_x
     return images_x
 
 
@@ -47,7 +62,7 @@ def show_images(images):
         plt.show()
 
 
-# dir = r'D:\workspace\dataset\cifar-10-batches-py'
+# dir = r'../../dataset/cifar-10-batches-py'
 # (x_train, y_train), (x_test, y_test), label_names = read_cifar(dir)
 # print(x_train.shape)
 # print(y_train.shape)

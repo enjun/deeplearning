@@ -8,6 +8,7 @@ from keras.layers.core import Dense, Activation, Dropout
 from keras.utils import np_utils
 
 (X_train, y_train), (X_test, y_test) = mnist.load_data()
+
 for i in range(9):
     plt.subplot(3, 3, i + 1)
     plt.imshow(X_train[i], cmap='gray', interpolation='none')
